@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "ElegantPages",
-        "repositoryURL": "https://github.com/ThasianX/ElegantPages",
+        "repositoryURL": "https://github.com/ernestoSk13/ElegantPagesSK.git",
         "state": {
-          "branch": null,
-          "revision": "47d166799f2313ad9e47c9c22687021d396d940f",
-          "version": "1.4.1"
+          "branch": "main",
+          "revision": "b9ca2b3a5ad625513d8218e2dbb320a10adf666b",
+          "version": null
         }
       }
     ]
