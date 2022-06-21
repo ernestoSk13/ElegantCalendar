@@ -29,6 +29,7 @@ extension AxisModifiable {
 
 }
 
+@available(iOS 14.0, *)
 extension MonthlyCalendarView: AxisModifiable { }
 extension YearlyCalendarView: AxisModifiable { }
 extension ElegantCalendarView: AxisModifiable { }

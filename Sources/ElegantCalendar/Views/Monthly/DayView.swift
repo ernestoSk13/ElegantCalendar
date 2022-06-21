@@ -1,15 +1,18 @@
 // Kevin Li - 11:30 PM - 6/6/20
 
 import SwiftUI
+import Combine
 
 struct DayView: View, MonthlyCalendarManagerDirectAccess {
 
     @Environment(\.calendarTheme) var theme: CalendarTheme
 
     @ObservedObject var calendarManager: MonthlyCalendarManager
+    let selectedDate = NotificationCenter.default.publisher(for: NSNotification.Name("selectedDate"))
 
     let week: Date
     let day: Date
+    @State var bgColor = Color.clear
 
     private var isDayWithinDateRange: Bool {
         day >= calendar.startOfDay(for: startDate) && day <= endDate
@@ -35,17 +38,28 @@ struct DayView: View, MonthlyCalendarManagerDirectAccess {
         guard let selectedDate = selectedDate else { return false }
         return calendar.isDate(selectedDate, equalTo: day, toGranularities: [.day, .month, .year])
     }
+    
+    
 
     var body: some View {
         Text(numericDay)
             .font(.footnote)
-            .foregroundColor(foregroundColor)
+            .foregroundColor(bgColor == .clear ? backgroundColor : Color.white)
             .frame(width: CalendarConstants.Monthly.dayWidth, height: CalendarConstants.Monthly.dayWidth)
-            .background(backgroundColor)
             .clipShape(Circle())
             .opacity(opacity)
-            .overlay(isSelected ? CircularSelectionView() : nil)
+            .background(Circle().fill(bgColor))
+            .overlay(Circle()
+                        .stroke(backgroundColor, lineWidth: 2))
+            .overlay(isDayToday ? CircularSelectionView(color: backgroundColor) : nil)
             .onTapGesture(perform: notifyManager)
+            .onReceive(selectedDate) { object in
+                if let output = object.object as? [Date], output.contains(day) {
+                    bgColor = backgroundColor
+                } else {
+                    bgColor = .clear
+                }
+            }
     }
 
     private var numericDay: String {
@@ -60,16 +74,11 @@ struct DayView: View, MonthlyCalendarManagerDirectAccess {
         }
     }
 
-    private var backgroundColor: some View {
-        Group {
-            if isDayToday {
-                Color.primary
-            } else if isDaySelectableAndInRange {
-                theme.primary
-                    .opacity(datasource?.calendar(backgroundColorOpacityForDate: day) ?? 1)
-            } else {
-                Color.clear
-            }
+    private var backgroundColor: Color {
+        if isDaySelectableAndInRange {
+            return datasource?.calendar(colorForDate: day) ?? .primary
+        } else {
+            return Color.clear
         }
     }
 
@@ -91,10 +100,11 @@ struct DayView: View, MonthlyCalendarManagerDirectAccess {
 private struct CircularSelectionView: View {
 
     @State private var startBounce = false
+    var color: Color = .primary
 
     var body: some View {
         Circle()
-            .stroke(Color.primary, lineWidth: 2)
+            .stroke(color, lineWidth: 2)
             .frame(width: radius, height: radius)
             .opacity(startBounce ? 1 : 0)
             .animation(.interpolatingSpring(stiffness: 150, damping: 10))

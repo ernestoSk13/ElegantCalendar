@@ -45,9 +45,14 @@ public struct ElegantCalendarView: View {
     }
 
     private var monthlyCalendarView: some View {
-        MonthlyCalendarView(calendarManager: calendarManager.monthlyManager)
-            .axis(axis.inverted)
-            .theme(theme)
+        if #available(iOS 14.0, *) {
+            return AnyView(MonthlyCalendarView(calendarManager: calendarManager.monthlyManager)
+                .axis(axis.inverted)
+                .theme(theme))
+        } else {
+            // Fallback on earlier versions
+            return AnyView(Text("23"))
+        }
     }
 
 }

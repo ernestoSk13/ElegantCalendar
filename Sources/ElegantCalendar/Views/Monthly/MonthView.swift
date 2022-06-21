@@ -9,6 +9,10 @@ struct MonthView: View, MonthlyCalendarManagerDirectAccess {
     @ObservedObject var calendarManager: MonthlyCalendarManager
 
     let month: Date
+    
+    var forIpad = false
+    
+    var onScrollToToday: (() -> ())? = nil
 
     private var weeks: [Date] {
         guard let monthInterval = calendar.dateInterval(of: .month, for: month) else {
@@ -25,19 +29,24 @@ struct MonthView: View, MonthlyCalendarManagerDirectAccess {
 
     var body: some View {
         VStack(spacing: 40) {
-            monthYearHeader
-                .padding(.leading, CalendarConstants.Monthly.outerHorizontalPadding)
-                .onTapGesture { self.communicator?.showYearlyView() }
-            weeksViewWithDaysOfWeekHeader
-            if selectedDate != nil {
-                calenderAccessoryView
+            HStack {
+                monthYearHeader
                     .padding(.leading, CalendarConstants.Monthly.outerHorizontalPadding)
-                    .id(selectedDate!)
+                    .onTapGesture { self.communicator?.showYearlyView() }
+                Button {
+                    onScrollToToday?()
+                } label: {
+                    Image.uTurnLeft
+                        .resizable()
+                        .frame(width: 30, height: 25)
+                        .foregroundColor(Color.primary)
+                }.padding(.horizontal, 10)
             }
-            Spacer()
+            weeksViewWithDaysOfWeekHeader
         }
         .padding(.top, CalendarConstants.Monthly.topPadding)
-        .frame(width: CalendarConstants.Monthly.cellWidth, height: CalendarConstants.cellHeight)
+        .frame(width: CalendarConstants.Monthly.cellWidth,
+               height: CalendarConstants.cellHeight > 400 ? CalendarConstants.cellHeight : CalendarConstants.cellHeight + 80)
     }
 
 }
@@ -59,14 +68,14 @@ private extension MonthView {
             .font(.system(size: 26))
             .bold()
             .tracking(7)
-            .foregroundColor(isWithinSameMonthAndYearAsToday ? theme.primary : .primary)
+            .foregroundColor(.primary)
     }
 
     var yearText: some View {
         Text(month.year)
             .font(.system(size: 12))
             .tracking(2)
-            .foregroundColor(isWithinSameMonthAndYearAsToday ? theme.primary : .gray)
+            .foregroundColor(.gray)
             .opacity(0.95)
     }
 
@@ -118,7 +127,7 @@ private struct CalendarAccessoryView: View, MonthlyCalendarManagerDirectAccess {
 
     private var numberOfDaysFromTodayToSelectedDate: Int {
         let startOfToday = calendar.startOfDay(for: Date())
-        let startOfSelectedDate = calendar.startOfDay(for: selectedDate!)
+        let startOfSelectedDate = calendar.startOfDay(for: selectedDate ?? Date())
         return calendar.dateComponents([.day], from: startOfToday, to: startOfSelectedDate).day!
     }
 
@@ -130,7 +139,7 @@ private struct CalendarAccessoryView: View, MonthlyCalendarManagerDirectAccess {
         VStack {
             selectedDayInformationView
             GeometryReader { geometry in
-                self.datasource?.calendar(viewForSelectedDate: self.selectedDate!,
+                self.datasource?.calendar(viewForSelectedDate: self.selectedDate,
                                           dimensions: geometry.size)
             }
         }
@@ -157,12 +166,15 @@ private struct CalendarAccessoryView: View, MonthlyCalendarManagerDirectAccess {
 
     private var dayOfWeekWithMonthAndDayText: some View {
         let monthDayText: String
-        if numberOfDaysFromTodayToSelectedDate == -1 {
-            monthDayText = "Yesterday"
+        
+        if selectedDate == nil {
+            monthDayText = "Notas del mes"
+        } else if numberOfDaysFromTodayToSelectedDate == -1 {
+            monthDayText = "Ayer"
         } else if numberOfDaysFromTodayToSelectedDate == 0 {
-            monthDayText = "Today"
+            monthDayText = "Hoy"
         } else if numberOfDaysFromTodayToSelectedDate == 1 {
-            monthDayText = "Tomorrow"
+            monthDayText = "Mañana"
         } else {
             monthDayText = selectedDate!.dayOfWeekWithMonthAndDay
         }
@@ -174,7 +186,7 @@ private struct CalendarAccessoryView: View, MonthlyCalendarManagerDirectAccess {
 
     private var daysFromTodayText: some View {
         let isBeforeToday = numberOfDaysFromTodayToSelectedDate < 0
-        let daysDescription = isBeforeToday ? "DAYS AGO" : "DAYS FROM TODAY"
+        let daysDescription = isBeforeToday ? "Días Atrás" : "días adelante"
 
         return Text("\(abs(numberOfDaysFromTodayToSelectedDate)) \(daysDescription)")
             .font(.system(size: 10))

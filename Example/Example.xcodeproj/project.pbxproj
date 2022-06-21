@@ -40,7 +40,7 @@
 		1E029CB024A4450200A81FFD /* ExampleCalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleCalendarView.swift; sourceTree = "<group>"; };
 		1E029CB124A4450200A81FFD /* ExampleMonthlyCalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleMonthlyCalendarView.swift; sourceTree = "<group>"; };
 		1E029CB224A4450200A81FFD /* ExampleYearlyCalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleYearlyCalendarView.swift; sourceTree = "<group>"; };
-		1E161AF524D5F43C00CA2B7F /* ElegantCalendar */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ElegantCalendar; path = ../..; sourceTree = "<group>"; };
+		1E161AF524D5F43C00CA2B7F /* ElegantCalendar */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ElegantCalendar; path = ..; sourceTree = "<group>"; };
 		1E161AF624D5F46200CA2B7F /* Date+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Additions.swift"; sourceTree = "<group>"; };
 		1E161AFB24D5F51000CA2B7F /* LightDarkThemePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightDarkThemePreview.swift; sourceTree = "<group>"; };
 		1E161AFD24D5F59500CA2B7F /* ElegantCalendar.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = ElegantCalendar.xcassets; path = ../ElegantCalendar.xcassets; sourceTree = "<group>"; };
@@ -97,7 +97,6 @@
 				1E029C7C24A4448A00A81FFD /* Assets.xcassets */,
 				1E029C8124A4448A00A81FFD /* LaunchScreen.storyboard */,
 				1E029C8424A4448A00A81FFD /* Info.plist */,
-				1E161AF524D5F43C00CA2B7F /* ElegantCalendar */,
 				1E029C7E24A4448A00A81FFD /* Preview Content */,
 			);
 			path = Example;
@@ -154,6 +153,7 @@
 		1E161AF824D5F47D00CA2B7F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1E161AF524D5F43C00CA2B7F /* ElegantCalendar */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

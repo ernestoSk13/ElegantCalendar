@@ -5,7 +5,9 @@ import SwiftUI
 extension Calendar {
     
     var dayOfWeekInitials: [String] {
-        veryShortWeekdaySymbols
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "es_mx")
+        return formatter.veryShortWeekdaySymbols.map { $0.uppercased() }
     }
     
 }

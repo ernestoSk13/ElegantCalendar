@@ -3,12 +3,14 @@
 import ElegantPages
 import SwiftUI
 
+@available(iOS 14.0, *)
 public struct MonthlyCalendarView: View, MonthlyCalendarManagerDirectAccess {
 
     var theme: CalendarTheme = .default
     public var axis: Axis = .vertical
 
     @ObservedObject public var calendarManager: MonthlyCalendarManager
+    @State var firstLoad = true
 
     private var isTodayWithinDateRange: Bool {
         Date() >= calendar.startOfDay(for: startDate) &&
@@ -30,41 +32,68 @@ public struct MonthlyCalendarView: View, MonthlyCalendarManagerDirectAccess {
     }
 
     private func content(geometry: GeometryProxy) -> some View {
-        CalendarConstants.Monthly.cellWidth = geometry.size.width
+        CalendarConstants.Monthly.cellWidth = geometry.size.width > 1000 ? geometry.size.width - 500 : geometry.size.width
 
-        return ZStack(alignment: .top) {
+        return VStack {
             monthsList
-
-            if isTodayWithinDateRange && !isCurrentMonthYearSameAsTodayMonthYear {
-                leftAlignedScrollBackToTodayButton
-                    .padding(.trailing, CalendarConstants.Monthly.outerHorizontalPadding)
-                    .offset(y: CalendarConstants.Monthly.topPadding + 3)
-                    .transition(.opacity)
-            }
         }
-        .frame(height: CalendarConstants.cellHeight)
     }
+    
+    private var gridItemLayout = [GridItem(.flexible())]
 
     private var monthsList: some View {
         Group {
             if axis == .vertical {
-                ElegantVList(manager: listManager,
-                             pageTurnType: .monthlyEarlyCutoff,
-                             viewForPage: monthView)
-                    .onPageChanged(configureNewMonth)
-                    .frame(width: CalendarConstants.Monthly.cellWidth)
-            } else {
-                ElegantHList(manager: listManager,
-                             pageTurnType: .monthlyEarlyCutoff,
-                             viewForPage: monthView)
-                    .onPageChanged(configureNewMonth)
-                    .frame(width: CalendarConstants.Monthly.cellWidth)
+//                if #available(iOS 14.0, *) {
+//                    LazyVGrid(columns: gridItemLayout) {
+//                        ScrollView {
+//                                ScrollViewReader { reader in
+//                                    ForEach(0 ..< months.count) { monthIndex in
+//                                        monthView(for: monthIndex, onScrollToToday: {
+//                                            reader.scrollTo(listManager.currentPageIndex, anchor: .top)
+//                                        })
+//                                            .padding(.vertical, 10)
+//                                            .id(monthIndex)
+//                                    }.onAppear {
+//                                        reader.scrollTo(listManager.currentPageIndex, anchor: .top)
+//                                    }
+//                                }
+//                        }.frame(height: CalendarConstants.cellHeight > 400 ? CalendarConstants.cellHeight * 2 : (CalendarConstants.cellHeight * 2 + 80) )
+//                            .transition(.opacity)
+//                    }.animation(.none)
+//                }
+                
+                ScrollView {
+                    ScrollViewReader { reader in
+                        LazyVGrid(columns: gridItemLayout) {
+                            ForEach(0 ..< months.count) { monthIndex in
+                                monthView(for: monthIndex, onScrollToToday: {
+                                    reader.scrollTo(listManager.currentPageIndex, anchor: .top)
+                                })
+                                    .padding(.vertical, 10)
+                                    .id(monthIndex)
+                                    .onAppear {
+                                        calendarManager.delegate?.calendar(willDisplayMonth: calendarManager.months[monthIndex])
+                                    }
+                            }
+                            .onAppear {
+                                guard firstLoad else {
+                                    return
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    reader.scrollTo(listManager.currentPageIndex, anchor: .top)
+                                    firstLoad = false
+                                }
+                            }
+                        }
+                    }
+                }.animation(.none)
             }
         }
     }
 
-    private func monthView(for page: Int) -> AnyView {
-        MonthView(calendarManager: calendarManager, month: months[page])
+    private func monthView(for page: Int, onScrollToToday: (() -> ())? = nil) -> AnyView {
+        MonthView(calendarManager: calendarManager, month: months[page], onScrollToToday: onScrollToToday)
             .environment(\.calendarTheme, theme)
             .erased
     }
@@ -82,9 +111,17 @@ public struct MonthlyCalendarView: View, MonthlyCalendarManagerDirectAccess {
 struct MonthlyCalendarView_Previews: PreviewProvider {
     static var previews: some View {
         LightDarkThemePreview {
-            MonthlyCalendarView(calendarManager: .mock)
+            if #available(iOS 14.0, *) {
+                MonthlyCalendarView(calendarManager: .mock)
+            } else {
+                // Fallback on earlier versions
+            }
 
-            MonthlyCalendarView(calendarManager: .mockWithInitialMonth)
+            if #available(iOS 14.0, *) {
+                MonthlyCalendarView(calendarManager: .mockWithInitialMonth)
+            } else {
+                // Fallback on earlier versions
+            }
         }
     }
 }

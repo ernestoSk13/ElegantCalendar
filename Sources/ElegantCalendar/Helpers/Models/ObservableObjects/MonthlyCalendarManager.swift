@@ -23,6 +23,10 @@ public class MonthlyCalendarManager: ObservableObject, ConfigurationDirectAccess
     private var isHapticActive: Bool = true
 
     private var anyCancellable: AnyCancellable?
+    public var cancellableSet: Set<AnyCancellable> = []
+    @Published public var selectedDates: [Date] = []
+    @Published var firstLoad = true
+    
 
     public init(configuration: CalendarConfiguration, initialMonth: Date? = nil) {
         self.configuration = configuration
@@ -47,6 +51,13 @@ public class MonthlyCalendarManager: ObservableObject, ConfigurationDirectAccess
         anyCancellable = $delegate.sink {
             $0?.calendar(willDisplayMonth: self.currentMonth)
         }
+        
+//        $selectedDates.drop(while: { $0.isEmpty })
+//            .sink { dates in
+//                for date in dates {
+//                    self.delegate?.calendar(didSelectDay: date)
+//                }
+//            }.store(in: &cancellableSet)
     }
 
 }
@@ -82,12 +93,6 @@ extension MonthlyCalendarManager {
         let didScrollToMonth = scrollToMonth(day, animated: animated)
         let canSelectDay = datasource?.calendar(canSelectDate: day) ?? true
 
-        if canSelectDay {
-            DispatchQueue.main.asyncAfter(deadline: .now()+0.15) {
-                self.dayTapped(day: day, withHaptic: !didScrollToMonth)
-            }
-        }
-
         return canSelectDay
     }
 
@@ -96,8 +101,13 @@ extension MonthlyCalendarManager {
             UIImpactFeedbackGenerator.generateSelectionHaptic()
         }
 
-        selectedDate = day
-        delegate?.calendar(didSelectDay: day)
+        selectedDate = selectedDate == day ? nil : day
+        
+        if selectedDate != nil {
+            delegate?.calendar(didSelectDay: day)
+        } else {
+            delegate?.calendar(didDeselectDay: day)
+        }
     }
 
     @discardableResult
@@ -165,9 +175,14 @@ extension MonthlyCalendarManagerDirectAccess {
     var selectedDate: Date? {
         calendarManager.selectedDate
     }
+    
+    var selectedDates: [Date] {
+        calendarManager.selectedDates
+    }
 
     func configureNewMonth(at page: Int) {
         calendarManager.configureNewMonth(at: page)
+        
     }
 
     func scrollBackToToday() {

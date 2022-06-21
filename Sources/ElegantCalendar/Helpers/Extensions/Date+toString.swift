@@ -31,30 +31,35 @@ extension DateFormatter {
     static var abbreviatedMonth: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM"
+        formatter.locale = Locale(identifier: "es_MX")
         return formatter
     }
 
     static var dayOfWeekWithMonthAndDay: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE MMMM d"
+        formatter.locale = Locale(identifier: "es_MX")
         return formatter
     }
 
     static var fullMonth: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM"
+        formatter.locale = Locale(identifier: "es_MX")
         return formatter
     }
 
     static let timeOnlyWithPadding: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
+        formatter.locale = Locale(identifier: "es_MX")
         return formatter
     }()
 
     static var year: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy"
+        formatter.locale = Locale(identifier: "es_MX")
         return formatter
     }
 

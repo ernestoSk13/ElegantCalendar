@@ -7,7 +7,6 @@ extension Date {
     static func daysFromToday(_ days: Int) -> Date {
         Date().addingTimeInterval(TimeInterval(60*60*24*days))
     }
-
 }
 
 extension Date {

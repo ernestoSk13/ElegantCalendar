@@ -20,6 +20,7 @@ extension Buildable {
 
 }
 
+@available(iOS 14.0, *)
 extension MonthlyCalendarView: Buildable {
 
     /// Changes the theme of the calendar
